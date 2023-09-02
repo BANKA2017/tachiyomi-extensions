@@ -53,14 +53,15 @@ class CopyManga : HttpSource(), ConfigurableSource {
 
     private fun Headers.Builder.setUserAgent(userAgent: String) = set("User-Agent", userAgent)
     private fun Headers.Builder.setRegion(useOverseasCdn: Boolean) = set("region", if (useOverseasCdn) "0" else "1")
-    private fun Headers.Builder.setReferer() = set("Referer", WWW_PREFIX + domain)
+    private fun Headers.Builder.setReferer() = set("Referer", REFERER) // WWW_PREFIX + domain)
     private fun Headers.Builder.setVersion(version: String) = set("version", version)
 
     override fun headersBuilder() = Headers.Builder()
         .setUserAgent(preferences.getString(USER_AGENT_PREF, DEFAULT_USER_AGENT)!!)
         .setRegion(preferences.getBoolean(OVERSEAS_CDN_PREF, false))
         .setReferer()
-        .add("platform", "1")
+        .add("source", SOURCE)
+        .add("platform", PLATFORM)
         .setVersion(preferences.getString(VERSION_PREF, DEFAULT_VERSION)!!)
 
     private var apiHeaders = headersBuilder().build()
@@ -257,14 +258,6 @@ class CopyManga : HttpSource(), ConfigurableSource {
             }
         }.let { screen.addPreference(it) }
 
-        EditTextPreference(screen.context).apply {
-            key = UA_CHECKER
-            title = "获取浏览器 UA 的链接"
-            summary = "点击后可以在弹出的对话框中复制链接"
-            setDefaultValue(UA_CHECKER)
-            setOnPreferenceChangeListener { _, _ -> false }
-        }.let { screen.addPreference(it) }
-
         SwitchPreferenceCompat(screen.context).apply {
             title = "更新网页版本号"
             summary = "点击尝试更新网页版本号，当前为：${preferences.getString(VERSION_PREF, DEFAULT_VERSION)}"
@@ -344,11 +337,13 @@ class CopyManga : HttpSource(), ConfigurableSource {
 
         private const val WWW_PREFIX = "https://www."
         private const val API_PREFIX = "https://api."
-        private val DOMAINS = arrayOf("copymanga.org", "copymanga.info", "copymanga.net")
-        private val DOMAIN_INDICES = arrayOf("0", "1", "2")
-        private const val DEFAULT_USER_AGENT = ""
-        private const val DEFAULT_VERSION = "2022.06.29"
-        private const val UA_CHECKER = "https://tool.lu/useragent"
+        private val DOMAINS = arrayOf("copymanga.tv", "mangacopy.com", "copymanga.org", "copymanga.info", "copymanga.net", "xsskc.com")
+        private val DOMAIN_INDICES = arrayOf("0", "1", "2", "3", "4", "5")
+        private const val PLATFORM = "3"
+        private const val SOURCE = "copyApp"
+        private const val DEFAULT_USER_AGENT = "COPY/2.0.7"
+        private const val DEFAULT_VERSION = "2.0.7"
+        private const val REFERER = "com.copymanga.app-2.0.7"
 
         private const val PAGE_SIZE = 20
         private const val CHAPTER_PAGE_SIZE = 500
